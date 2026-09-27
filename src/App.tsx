@@ -62,10 +62,10 @@ export default function App() {
       {/* Header */}
       <header className="border-b border-slate-700 px-4 py-4">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <div>
+          <button onClick={() => goToStep('setup')} className="text-left hover:opacity-70 transition-opacity">
             <h1 className="text-xl font-bold text-white">Fair Chiwazi</h1>
             <p className="text-xs text-slate-400">Weighted credit card roulette</p>
-          </div>
+          </button>
           <button
             onClick={() => { localStorage.clear(); window.location.reload() }}
             className="text-xs text-slate-500 hover:text-red-400 transition-colors"

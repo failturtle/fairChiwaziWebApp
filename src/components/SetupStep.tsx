@@ -1,0 +1,196 @@
+import { useState, useRef } from 'react'
+import type { Person, Item } from '../types'
+import { COLORS } from '../utils/calculations'
+
+interface Props {
+  people: Person[]
+  setPeople: (p: Person[]) => void
+  items: Item[]
+  setItems: (i: Item[]) => void
+  onNext: () => void
+}
+
+let nextId = 100
+
+function genId() {
+  return String(++nextId)
+}
+
+export default function SetupStep({ people, setPeople, items, setItems, onNext }: Props) {
+  const [newPersonName, setNewPersonName] = useState('')
+  const [newItemName, setNewItemName] = useState('')
+  const [newItemCost, setNewItemCost] = useState('')
+  const [receiptImage, setReceiptImage] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  function addPerson() {
+    const name = newPersonName.trim()
+    if (!name) return
+    const color = COLORS[people.length % COLORS.length]
+    setPeople([...people, { id: genId(), name, color }])
+    setNewPersonName('')
+  }
+
+  function removePerson(id: string) {
+    setPeople(people.filter(p => p.id !== id))
+    setItems(items.map(item => ({
+      ...item,
+      assignedTo: item.assignedTo.filter(pid => pid !== id),
+    })))
+  }
+
+  function addItem() {
+    const name = newItemName.trim()
+    const cost = parseFloat(newItemCost)
+    if (!name || isNaN(cost) || cost <= 0) return
+    setItems([...items, { id: genId(), name, cost, assignedTo: [] }])
+    setNewItemName('')
+    setNewItemCost('')
+  }
+
+  function removeItem(id: string) {
+    setItems(items.filter(i => i.id !== id))
+  }
+
+  function handleReceiptUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const url = URL.createObjectURL(file)
+    setReceiptImage(url)
+  }
+
+  const canProceed = people.length >= 2 && items.length >= 1
+
+  return (
+    <div className="space-y-8">
+      {/* People */}
+      <section>
+        <h2 className="text-lg font-semibold mb-3 text-slate-200">People</h2>
+        <div className="space-y-2 mb-3">
+          {people.map(person => (
+            <div key={person.id} className="flex items-center gap-3 bg-slate-800 rounded-lg px-4 py-2">
+              <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: person.color }} />
+              <span className="flex-1 text-slate-200">{person.name}</span>
+              <button
+                onClick={() => removePerson(person.id)}
+                className="text-slate-500 hover:text-red-400 text-sm transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={newPersonName}
+            onChange={e => setNewPersonName(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && addPerson()}
+            placeholder="Add person..."
+            className="flex-1 bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+          />
+          <button
+            onClick={addPerson}
+            className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          >
+            Add
+          </button>
+        </div>
+      </section>
+
+      {/* Items */}
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-semibold text-slate-200">Items</h2>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+          >
+            📷 Upload receipt for reference
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleReceiptUpload}
+          />
+        </div>
+
+        {receiptImage && (
+          <div className="mb-4 rounded-lg overflow-hidden border border-slate-600">
+            <div className="flex items-center justify-between bg-slate-700 px-3 py-2">
+              <span className="text-xs text-slate-300">Receipt reference</span>
+              <button
+                onClick={() => setReceiptImage(null)}
+                className="text-slate-400 hover:text-slate-200 text-xs"
+              >
+                ✕
+              </button>
+            </div>
+            <img src={receiptImage} alt="Receipt" className="w-full max-h-64 object-contain bg-slate-900" />
+          </div>
+        )}
+
+        <div className="space-y-2 mb-3">
+          {items.map(item => (
+            <div key={item.id} className="flex items-center gap-3 bg-slate-800 rounded-lg px-4 py-2">
+              <span className="flex-1 text-slate-200">{item.name}</span>
+              <span className="text-green-400 font-mono text-sm">${item.cost.toFixed(2)}</span>
+              <button
+                onClick={() => removeItem(item.id)}
+                className="text-slate-500 hover:text-red-400 text-sm transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={newItemName}
+            onChange={e => setNewItemName(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && document.getElementById('cost-input')?.focus()}
+            placeholder="Item name..."
+            className="flex-1 bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+          />
+          <input
+            id="cost-input"
+            type="number"
+            value={newItemCost}
+            onChange={e => setNewItemCost(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && addItem()}
+            placeholder="Cost..."
+            min="0"
+            step="0.01"
+            className="w-28 bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+          />
+          <button
+            onClick={addItem}
+            className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          >
+            Add
+          </button>
+        </div>
+      </section>
+
+      <div className="pt-2">
+        {!canProceed && (
+          <p className="text-slate-500 text-sm mb-3">
+            {people.length < 2 ? 'Add at least 2 people. ' : ''}
+            {items.length < 1 ? 'Add at least 1 item.' : ''}
+          </p>
+        )}
+        <button
+          onClick={onNext}
+          disabled={!canProceed}
+          className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 disabled:text-slate-500 text-white font-semibold py-3 rounded-xl transition-colors"
+        >
+          Next: Assign Items →
+        </button>
+      </div>
+    </div>
+  )
+}

@@ -42,7 +42,7 @@ export default function SetupStep({ people, setPeople, items, setItems, onNext }
   function addItem() {
     const name = newItemName.trim()
     const cost = parseFloat(newItemCost)
-    if (!name || isNaN(cost) || cost <= 0) return
+    if (!name || isNaN(cost) || cost < 0) return
     setItems([...items, { id: genId(), name, cost, assignedTo: [] }])
     setNewItemName('')
     setNewItemCost('')
@@ -70,7 +70,12 @@ export default function SetupStep({ people, setPeople, items, setItems, onNext }
           {people.map(person => (
             <div key={person.id} className="flex items-center gap-3 bg-slate-800 rounded-lg px-4 py-2">
               <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: person.color }} />
-              <span className="flex-1 text-slate-200">{person.name}</span>
+              <input
+                type="text"
+                value={person.name}
+                onChange={e => setPeople(people.map(p => p.id === person.id ? { ...p, name: e.target.value } : p))}
+                className="flex-1 bg-transparent text-slate-200 focus:outline-none focus:border-b border-indigo-500"
+              />
               <button
                 onClick={() => removePerson(person.id)}
                 className="text-slate-500 hover:text-red-400 text-sm transition-colors"
@@ -135,8 +140,22 @@ export default function SetupStep({ people, setPeople, items, setItems, onNext }
         <div className="space-y-2 mb-3">
           {items.map(item => (
             <div key={item.id} className="flex items-center gap-3 bg-slate-800 rounded-lg px-4 py-2">
-              <span className="flex-1 text-slate-200">{item.name}</span>
-              <span className="text-green-400 font-mono text-sm">${item.cost.toFixed(2)}</span>
+              <input
+                type="text"
+                value={item.name}
+                onChange={e => setItems(items.map(i => i.id === item.id ? { ...i, name: e.target.value } : i))}
+                className="flex-1 bg-transparent text-slate-200 focus:outline-none focus:border-b border-indigo-500"
+              />
+              <span className="text-slate-500 text-sm">$</span>
+              <input
+                type="number"
+                value={item.cost || ''}
+                onChange={e => setItems(items.map(i => i.id === item.id ? { ...i, cost: parseFloat(e.target.value) || 0 } : i))}
+                placeholder="0.00"
+                min="0"
+                step="0.01"
+                className="w-20 bg-transparent text-green-400 font-mono text-sm focus:outline-none focus:border-b border-indigo-500 text-right"
+              />
               <button
                 onClick={() => removeItem(item.id)}
                 className="text-slate-500 hover:text-red-400 text-sm transition-colors"

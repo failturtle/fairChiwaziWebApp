@@ -32,16 +32,16 @@ export default function App() {
   const [step, setStep] = useState<Step>('setup')
   const [people, setPeople] = useState<Person[]>(() =>
     load('fc:people', [
-      { id: '1', name: 'Alice', color: COLORS[0] },
-      { id: '2', name: 'Bob', color: COLORS[1] },
-      { id: '3', name: 'Charlie', color: COLORS[2] },
+      { id: '1', name: 'Clement', color: COLORS[0] },
+      { id: '2', name: 'Piggy', color: COLORS[1] },
+      { id: '3', name: 'Piggatron', color: COLORS[2] },
     ])
   )
   const [items, setItems] = useState<Item[]>(() =>
     load('fc:items', [
-      { id: '1', name: 'Burger', cost: 20, assignedTo: ['1'] },
-      { id: '2', name: 'Pasta', cost: 30, assignedTo: ['2'] },
-      { id: '3', name: 'Salad', cost: 10, assignedTo: ['3'] },
+      { id: '1', name: 'Item 1', cost: 0, assignedTo: [] },
+      { id: '2', name: 'Item 2', cost: 0, assignedTo: [] },
+      { id: '3', name: 'Item 3', cost: 0, assignedTo: [] },
     ])
   )
 

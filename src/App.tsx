@@ -49,6 +49,13 @@ export default function App() {
   useEffect(() => { save('fc:items', items) }, [items])
 
   const stepIndex = STEPS.findIndex(s => s.key === step)
+  const [maxStepIndex, setMaxStepIndex] = useState(stepIndex)
+
+  function goToStep(s: Step) {
+    const i = STEPS.findIndex(x => x.key === s)
+    setStep(s)
+    if (i > maxStepIndex) setMaxStepIndex(i)
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -70,13 +77,11 @@ export default function App() {
             {STEPS.map((s, i) => (
               <div key={s.key} className="flex items-center gap-1">
                 <button
-                  onClick={() => {
-                    if (i <= stepIndex) setStep(s.key)
-                  }}
+                  onClick={() => { if (i <= maxStepIndex) goToStep(s.key) }}
                   className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                     s.key === step
                       ? 'bg-indigo-600 text-white'
-                      : i < stepIndex
+                      : i <= maxStepIndex
                       ? 'bg-slate-600 text-slate-200 hover:bg-slate-500 cursor-pointer'
                       : 'bg-slate-800 text-slate-500 cursor-default'
                   }`}
@@ -101,7 +106,7 @@ export default function App() {
               setPeople={setPeople}
               items={items}
               setItems={setItems}
-              onNext={() => setStep('assign')}
+              onNext={() => goToStep('assign')}
             />
           )}
           {step === 'assign' && (
@@ -109,23 +114,23 @@ export default function App() {
               people={people}
               items={items}
               setItems={setItems}
-              onBack={() => setStep('setup')}
-              onNext={() => setStep('summary')}
+              onBack={() => goToStep('setup')}
+              onNext={() => goToStep('summary')}
             />
           )}
           {step === 'summary' && (
             <SummaryStep
               people={people}
               items={items}
-              onBack={() => setStep('assign')}
-              onSpin={() => setStep('spin')}
+              onBack={() => goToStep('assign')}
+              onSpin={() => goToStep('spin')}
             />
           )}
           {step === 'spin' && (
             <SpinStep
               people={people}
               items={items}
-              onBack={() => setStep('summary')}
+              onBack={() => goToStep('summary')}
             />
           )}
         </div>

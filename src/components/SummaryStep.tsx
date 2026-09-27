@@ -33,7 +33,7 @@ export default function SummaryStep({ people, items, onBack, onSpin }: Props) {
       <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start sm:justify-center">
         {/* Pie chart */}
         <div className="flex-shrink-0">
-          <PieChart slices={slices} size={240} />
+          <PieChart slices={slices} size={Math.min(240, typeof window !== 'undefined' ? window.innerWidth - 48 : 240)} />
         </div>
 
         {/* Legend / breakdown */}

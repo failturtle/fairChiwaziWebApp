@@ -39,9 +39,9 @@ export default function App() {
   )
   const [items, setItems] = useState<Item[]>(() =>
     load('fc:items', [
-      { id: '1', name: 'Item 1', cost: 0, assignedTo: [] },
-      { id: '2', name: 'Item 2', cost: 0, assignedTo: [] },
-      { id: '3', name: 'Item 3', cost: 0, assignedTo: [] },
+      { id: '1', name: 'Item 1', cost: 1, assignedTo: [] },
+      { id: '2', name: 'Item 2', cost: 1, assignedTo: [] },
+      { id: '3', name: 'Item 3', cost: 1, assignedTo: [] },
     ])
   )
 

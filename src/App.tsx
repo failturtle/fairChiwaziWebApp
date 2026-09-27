@@ -59,6 +59,12 @@ export default function App() {
             <h1 className="text-xl font-bold text-white">Fair Chiwazi</h1>
             <p className="text-xs text-slate-400">Weighted credit card roulette</p>
           </div>
+          <button
+            onClick={() => { localStorage.clear(); window.location.reload() }}
+            className="text-xs text-slate-500 hover:text-red-400 transition-colors"
+          >
+            Reset
+          </button>
           {/* Step indicators */}
           <div className="flex items-center gap-1">
             {STEPS.map((s, i) => (

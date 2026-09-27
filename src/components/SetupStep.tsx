@@ -21,6 +21,8 @@ export default function SetupStep({ people, setPeople, items, setItems, onNext }
   const [newItemName, setNewItemName] = useState('')
   const [newItemCost, setNewItemCost] = useState('')
   const [receiptImage, setReceiptImage] = useState<string | null>(null)
+  const [scanning, setScanning] = useState(false)
+  const [scanError, setScanError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   function addPerson() {
@@ -52,11 +54,25 @@ export default function SetupStep({ people, setPeople, items, setItems, onNext }
     setItems(items.filter(i => i.id !== id))
   }
 
-  function handleReceiptUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleReceiptUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
     const url = URL.createObjectURL(file)
     setReceiptImage(url)
+    setScanError(null)
+    setScanning(true)
+    try {
+      const formData = new FormData()
+      formData.append('receipt', file)
+      const res = await fetch('/api/parse-receipt', { method: 'POST', body: formData })
+      if (!res.ok) throw new Error('Server error')
+      const parsed: { name: string; cost: number }[] = await res.json()
+      setItems([...items, ...parsed.map(p => ({ id: genId(), name: p.name, cost: p.cost, assignedTo: [] }))])
+    } catch {
+      setScanError('Could not parse receipt. You can add items manually.')
+    } finally {
+      setScanning(false)
+    }
   }
 
   const canProceed = people.length >= 2 && items.length >= 1
@@ -109,9 +125,10 @@ export default function SetupStep({ people, setPeople, items, setItems, onNext }
           <h2 className="text-lg font-semibold text-slate-200">Items</h2>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+            disabled={scanning}
+            className="text-sm text-indigo-400 hover:text-indigo-300 disabled:text-slate-500 transition-colors"
           >
-            📷 Upload receipt for reference
+            {scanning ? '⏳ Scanning...' : '📷 Scan receipt with AI'}
           </button>
           <input
             ref={fileInputRef}
@@ -121,6 +138,10 @@ export default function SetupStep({ people, setPeople, items, setItems, onNext }
             onChange={handleReceiptUpload}
           />
         </div>
+
+        {scanError && (
+          <p className="text-red-400 text-xs mb-2">{scanError}</p>
+        )}
 
         {receiptImage && (
           <div className="mb-4 rounded-lg overflow-hidden border border-slate-600">

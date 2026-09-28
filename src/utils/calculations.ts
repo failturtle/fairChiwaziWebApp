@@ -1,7 +1,7 @@
 import type { Person, Item } from '../types'
 
 export const COLORS = [
-  '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+  '#FF6B6B', '#367bf2', '#8aff41', '#fbff11', '#ffa7ae',
   '#DDA0DD', '#7EC8E3', '#F7DC6F', '#BB8FCE', '#F1948A',
   '#82E0AA', '#F0B27A', '#AED6F1', '#F9E79F', '#A9DFBF',
 ]

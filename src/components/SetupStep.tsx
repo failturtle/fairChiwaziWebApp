@@ -122,12 +122,12 @@ export default function SetupStep({ people, setPeople, items, setItems, onNext }
 
       {/* Items */}
       <section>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-1">
           <h2 className="text-lg font-semibold text-slate-200">Items</h2>
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={scanning}
-            className="text-sm text-indigo-400 hover:text-indigo-300 disabled:text-slate-500 transition-colors"
+            className="text-sm text-indigo-400 hover:text-indigo-300 disabled:text-slate-500 transition-colors text-left sm:text-right"
           >
             {scanning ? '⏳ Scanning...' : '📷 Scan receipt with AI'}
           </button>
@@ -206,11 +206,11 @@ export default function SetupStep({ people, setPeople, items, setItems, onNext }
             placeholder="Cost..."
             min="0"
             step="0.01"
-            className="w-28 bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+            className="w-20 bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
           />
           <button
             onClick={addItem}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg font-medium transition-colors"
           >
             Add
           </button>

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import type { Person, Item } from '../types'
 import { computePersonCosts, pickWeightedWinner, formatCurrency } from '../utils/calculations'
+import { track } from '../utils/api'
 import FortuneWheel from './FortuneWheel'
 import type { Segment } from './FortuneWheel'
 
@@ -111,10 +112,34 @@ export default function SpinStep({ people, items, onBack }: Props) {
         setRotation(targetRotationRef.current)
         setWinner(w)
         setSpinState('done')
+        recordSpin(w)
       }
     }
 
     animRef.current = requestAnimationFrame(animate)
+  }
+
+  function recordSpin(w: Person) {
+    const nameOf = new Map(people.map(p => [p.id, p.name]))
+    track('/api/spins', {
+      people: segments.map(s => ({
+        id: s.person.id,
+        name: s.person.name,
+        total: costs.get(s.person.id) ?? 0,
+        probability: s.proportion,
+      })),
+      items: items.map(item => ({
+        name: item.name,
+        cost: item.cost,
+        shares: item.assignedTo.map(pid => ({
+          personId: pid,
+          name: nameOf.get(pid) ?? pid,
+          amount: item.cost / item.assignedTo.length,
+        })),
+      })),
+      winnerId: w.id,
+      winnerName: w.name,
+    })
   }
 
   const wheelSize = Math.min(340, typeof window !== 'undefined' ? window.innerWidth - 48 : 340)

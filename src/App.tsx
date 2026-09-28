@@ -68,7 +68,13 @@ export default function App() {
               <p className="text-xs text-slate-400">Weighted credit card roulette</p>
             </button>
             <button
-              onClick={() => { localStorage.clear(); window.location.reload() }}
+              onClick={() => {
+                // Keep the device id so a reset doesn't look like a new user
+                const clientId = localStorage.getItem('fc:clientId')
+                localStorage.clear()
+                if (clientId) localStorage.setItem('fc:clientId', clientId)
+                window.location.reload()
+              }}
               className="text-xs text-slate-500 hover:text-red-400 transition-colors"
             >
               Reset

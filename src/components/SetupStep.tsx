@@ -16,11 +16,6 @@ function genId() {
   return String(++nextId)
 }
 
-// Untouched "Item 1/2/3" placeholders seeded by App on first load
-function isPlaceholderItem(item: Item) {
-  return ['1', '2', '3'].includes(item.id) && item.name === `Item ${item.id}` && item.cost === 1
-}
-
 export default function SetupStep({ people, setPeople, items, setItems, onNext }: Props) {
   const [newPersonName, setNewPersonName] = useState('')
   const [newItemName, setNewItemName] = useState('')
@@ -72,7 +67,8 @@ export default function SetupStep({ people, setPeople, items, setItems, onNext }
       const res = await fetch('/api/parse-receipt', { method: 'POST', body: formData })
       if (!res.ok) throw new Error('Server error')
       const parsed: { name: string; cost: number }[] = await res.json()
-      setItems([...items.filter(i => !isPlaceholderItem(i)), ...parsed.map(p => ({ id: genId(), name: p.name, cost: p.cost, assignedTo: [] }))])
+      // A scanned receipt replaces the whole item list, so rescanning doesn't duplicate
+      setItems(parsed.map(p => ({ id: genId(), name: p.name, cost: p.cost, assignedTo: [] })))
     } catch {
       setScanError('Could not parse receipt. You can add items manually.')
     } finally {

@@ -24,6 +24,8 @@ jobs:
 
       - run: npm run build
 
+      - run: npm run build:server
+
       - name: Deploy to VPS
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
@@ -33,4 +35,8 @@ jobs:
           rsync -avz --delete \
             -e "ssh -i /tmp/deploy_key -o StrictHostKeyChecking=no" \
             dist/ root@159.65.13.142:/var/www/fairchiwazi/
+          rsync -avz --delete \
+            -e "ssh -i /tmp/deploy_key -o StrictHostKeyChecking=no" \
+            dist-server/ root@159.65.13.142:/var/www/fairchiwazi-server/
+          ssh -i /tmp/deploy_key -o StrictHostKeyChecking=no root@159.65.13.142 'systemctl restart fairchiwazi-server'
           rm /tmp/deploy_key

@@ -121,9 +121,13 @@ app.post('/api/spins', (req, res) => {
     return
   }
   const clientId = str(req.body?.clientId)
-  console.log(`[spin] client=${clientId ?? '-'} people=${people.length} items=${items.length} winner=${JSON.stringify(winnerName)}`)
+  // Whole bill the winner pays: every item, assigned or not
+  const total = Math.round(
+    items.reduce((sum: number, item: { cost?: unknown }) => sum + (typeof item?.cost === 'number' ? item.cost : 0), 0) * 100
+  ) / 100
+  console.log(`[spin] client=${clientId ?? '-'} people=${people.length} items=${items.length} total=${total} winner=${JSON.stringify(winnerName)}`)
   try {
-    recordSpin({ clientId, people, items, winnerId, winnerName })
+    recordSpin({ clientId, people, items, winnerId, winnerName, total })
   } catch (err) {
     console.error('Could not record spin:', err)
   }

@@ -38,9 +38,20 @@ export async function initDb() {
         people TEXT NOT NULL,
         items TEXT NOT NULL,
         winner_id TEXT NOT NULL,
-        winner_name TEXT NOT NULL
+        winner_name TEXT NOT NULL,
+        total REAL
       );
     `)
+    // Databases created before `total` existed: add it and backfill from items
+    const spinColumns = db.prepare('PRAGMA table_info(spins)').all() as { name: string }[]
+    if (!spinColumns.some(c => c.name === 'total')) {
+      db.exec(`
+        ALTER TABLE spins ADD COLUMN total REAL;
+        UPDATE spins SET total = (
+          SELECT ROUND(SUM(json_extract(value, '$.cost')), 2) FROM json_each(spins.items)
+        );
+      `)
+    }
     console.log(`Database ready at ${DATA_DIR}`)
   } catch (err) {
     db = null
@@ -71,8 +82,9 @@ export function recordSpin(s: {
   items: unknown
   winnerId: string
   winnerName: string
+  total: number
 }) {
   db?.prepare(
-    'INSERT INTO spins (client_id, people, items, winner_id, winner_name) VALUES (?, ?, ?, ?, ?)'
-  ).run(s.clientId, JSON.stringify(s.people), JSON.stringify(s.items), s.winnerId, s.winnerName)
+    'INSERT INTO spins (client_id, people, items, winner_id, winner_name, total) VALUES (?, ?, ?, ?, ?, ?)'
+  ).run(s.clientId, JSON.stringify(s.people), JSON.stringify(s.items), s.winnerId, s.winnerName, s.total)
 }

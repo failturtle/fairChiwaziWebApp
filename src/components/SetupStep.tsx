@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import type { Person, Item } from '../types'
 import { COLORS } from '../utils/calculations'
+import { getClientId, track } from '../utils/api'
 
 interface Props {
   people: Person[]
@@ -31,6 +32,7 @@ export default function SetupStep({ people, setPeople, items, setItems, onNext }
     const color = COLORS[people.length % COLORS.length]
     setPeople([...people, { id: genId(), name, color }])
     setNewPersonName('')
+    track('/api/events/person-added', { name })
   }
 
   function removePerson(id: string) {
@@ -63,6 +65,7 @@ export default function SetupStep({ people, setPeople, items, setItems, onNext }
     setScanning(true)
     try {
       const formData = new FormData()
+      formData.append('clientId', getClientId())
       formData.append('receipt', file)
       const res = await fetch('/api/parse-receipt', { method: 'POST', body: formData })
       if (!res.ok) throw new Error('Server error')

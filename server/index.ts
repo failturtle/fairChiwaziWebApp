@@ -45,11 +45,17 @@ app.post('/api/parse-receipt', upload.single('receipt'), async (req, res) => {
       return
     }
 
-    let text = textBlock.text.trim()
-    // Strip markdown fences if present
-    text = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim()
+    const raw = textBlock.text.trim()
 
-    const items = JSON.parse(text)
+    // Find the JSON array anywhere in the response (handles prose before/after)
+    const match = raw.match(/\[[\s\S]*\]/)
+    if (!match) {
+      console.error('No JSON array found in response:', raw)
+      res.status(500).json({ error: 'Could not find item list in AI response' })
+      return
+    }
+
+    const items = JSON.parse(match[0])
     res.json(items)
   } catch (err) {
     console.error('Receipt parse error:', err)

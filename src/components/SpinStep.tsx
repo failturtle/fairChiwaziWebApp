@@ -117,11 +117,6 @@ export default function SpinStep({ people, items, onBack }: Props) {
     animRef.current = requestAnimationFrame(animate)
   }
 
-  function spinAgain() {
-    setWinner(null)
-    setSpinState('idle')
-  }
-
   const wheelSize = Math.min(340, typeof window !== 'undefined' ? window.innerWidth - 48 : 340)
 
   return (
@@ -167,7 +162,7 @@ export default function SpinStep({ people, items, onBack }: Props) {
 
         {spinState === 'done' ? (
           <button
-            onClick={spinAgain}
+            onClick={spin}
             className="flex-[2] bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg"
           >
             🔄 Spin Again
